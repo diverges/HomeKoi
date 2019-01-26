@@ -38,12 +38,12 @@ export class App {
         var camera: FreeCamera = new FreeCamera("Camera", new Vector3(0, 30, 0), scene);
         camera.attachControl(this.canvas, true);
     
-        var light: HemisphericLight = new HemisphericLight("light2", new BABYLON.Vector3(1, 1, 1), scene);
-        light.intensity = 0.6;
-        light.specular = Color3.Black();
+        var hemisphericLight: HemisphericLight = new HemisphericLight("light2", new BABYLON.Vector3(1, 1, 1), scene);
+        hemisphericLight.intensity = 0.6;
+        hemisphericLight.specular = Color3.Black();
     
-        var light2 = new DirectionalLight("dir01", new BABYLON.Vector3(0, -0.5, -1.0), scene);
-        light2.position = new Vector3(0, 5, 5);
+        var directionalLight = new DirectionalLight("dir01", new BABYLON.Vector3(0, -0.5, -1.0), scene);
+        directionalLight.position = new Vector3(0, 5, 5);
     
         scene = await SceneLoader.AppendAsync('/assets/3d/long_fish/', '12993_Long_Fin_White_Cloud_v1_l3.obj', scene);
         camera.setTarget(scene.meshes[0].position);
@@ -51,14 +51,6 @@ export class App {
         sea.addToRenderList(scene.meshes[0]);
     
         return scene;
-    }
-
-    private RunScene(scene: Scene): void {
-        this.scene = scene;
-        this.isLoaded = true;
-        this.engine.runRenderLoop(() => {
-            this.scene.render();
-        });
     }
 }
 export const gApp = new App();
