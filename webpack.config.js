@@ -7,7 +7,7 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     resolve: {
-        extensions: [".ts", '.js']
+        extensions: [".ts", '.js', '.html']
     },
     devtool: 'source-map',
     mode: "development",
@@ -16,6 +16,12 @@ module.exports = {
             test: /\.tsx?$/,
             loader: 'ts-loader',
             exclude: /node_modules/
+        },
+        {
+          test: /\.html$/,
+          loader: 'file-loader',
+          include: path.resolve(__dirname, 'src', 'res', 'html'),
+          exclude: /node_modules/,
         }]
     }
 };

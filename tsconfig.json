@@ -18,7 +18,8 @@
       "outDir": "./"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "index.html"
   ],
   "exclude": [
     "node_modules"
