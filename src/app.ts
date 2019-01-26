@@ -9,34 +9,56 @@ import {
 import 'babylonjs-loaders';
 import { Sea } from './sea';
 
-var canvas: any = document.getElementById("renderCanvas");
-var engine: Engine = new Engine(canvas, true);
+export class App {
+    public canvas;
+    public engine: Engine;
+    public scene: Scene;
+    private isLoaded: boolean;
 
-function createScene(): Scene {
-    var scene: Scene = new Scene(engine);
+    constructor() {
+        this.canvas = document.getElementById("renderCanvas");
+        this.engine = new Engine(this.canvas, true);
+        this.isLoaded = false;
+        this.createScene().then((scene: Scene): void => {
+            this.scene = scene;
+            this.isLoaded = true;
+            this.engine.runRenderLoop(() => {
+                this.scene.render();
+            });
+        });
+    }
 
-    var camera: FreeCamera = new FreeCamera("Camera", new Vector3(0, 20, 0), scene);
-    camera.attachControl(canvas, true);
+    public IsRunning(): boolean {
+        return this.isLoaded;
+    }
 
-    var light: HemisphericLight = new HemisphericLight("light2", new BABYLON.Vector3(1, 1, 1), scene);
-	light.intensity = 0.6;
-	light.specular = Color3.Black();
-
-    var light2 = new DirectionalLight("dir01", new BABYLON.Vector3(0, -0.5, -1.0), scene);
-    light2.position = new Vector3(0, 5, 5);
-
-    //var sphere: Mesh = MeshBuilder.CreateSphere("sphere", { diameter: 1.0 }, scene);
-    SceneLoader.Append('/assets/3d/long_fish/', '12993_Long_Fin_White_Cloud_v1_l3.obj', scene, function (ctx:Scene) {
-        console.log(ctx);
-        camera.setTarget(ctx.meshes[0].position);
+    private async createScene(): Promise<Scene> {
+        var scene: Scene = new Scene(this.engine);
+    
+        var camera: FreeCamera = new FreeCamera("Camera", new Vector3(0, 30, 0), scene);
+        camera.attachControl(this.canvas, true);
+    
+        var light: HemisphericLight = new HemisphericLight("light2", new BABYLON.Vector3(1, 1, 1), scene);
+        light.intensity = 0.6;
+        light.specular = Color3.Black();
+    
+        var light2 = new DirectionalLight("dir01", new BABYLON.Vector3(0, -0.5, -1.0), scene);
+        light2.position = new Vector3(0, 5, 5);
+    
+        scene = await SceneLoader.AppendAsync('/assets/3d/long_fish/', '12993_Long_Fin_White_Cloud_v1_l3.obj', scene);
+        camera.setTarget(scene.meshes[0].position);
         var sea : Sea = new Sea(scene);
-        sea.addToRenderList(ctx.meshes[0]);
-    });
-    return scene;
+        sea.addToRenderList(scene.meshes[0]);
+    
+        return scene;
+    }
+
+    private RunScene(scene: Scene): void {
+        this.scene = scene;
+        this.isLoaded = true;
+        this.engine.runRenderLoop(() => {
+            this.scene.render();
+        });
+    }
 }
-
-var scene: Scene = createScene();
-
-engine.runRenderLoop(() => {
-    scene.render();
-});
+export const gApp = new App();
