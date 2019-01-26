@@ -15,7 +15,7 @@
           "es5"
       ],
       "declaration": true,
-      "outDir": "./"
+      "outDir": "./dist"
   },
   "include": [
     "src/**/*",
