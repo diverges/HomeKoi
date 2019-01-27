@@ -1,7 +1,7 @@
-import { Mesh, Scene, Vector3, GroundGeometry } from "babylonjs";
+import { Mesh, Scene, Vector3, Observer } from "babylonjs";
 import { SceneActor } from "./actor";
 
-const FLOCK_THRESHOLD = 30;
+const FLOCK_THRESHOLD = 75;
 
 class PhysicsBehavior {
     mesh: Mesh;
@@ -10,6 +10,7 @@ class PhysicsBehavior {
     velocity: Vector3;
     acceleration: Vector3;
 
+    private onBeforeRenderObserver : Observer<Mesh>
 
     constructor(mesh: Mesh, mass: number = 1.0) {
         this.mesh = mesh;
@@ -18,7 +19,7 @@ class PhysicsBehavior {
         this.velocity = Vector3.Zero();
         this.acceleration = Vector3.Zero();
 
-        this.mesh.onBeforeRenderObservable.add(this.update.bind(this));
+        this.onBeforeRenderObserver = this.mesh.onBeforeRenderObservable.add(this.update.bind(this));
     }
 
     applyForce(force: Vector3) {
@@ -38,6 +39,10 @@ class PhysicsBehavior {
     update() {
         let deltaTime = 0.01;
         this.updatePosition(deltaTime);
+    }
+
+    dispose() {
+        this.mesh.onBeforeRenderObservable.remove(this.onBeforeRenderObserver);
     }
 }
 
@@ -101,6 +106,28 @@ export class PlayerFishBehavior extends PhysicsBehavior {
     }
 }
 
+export class WildFishBehavior extends PhysicsBehavior {
+    private curStep : number;
+    private updateSteps : number;
+
+    constructor(mesh: Mesh) {
+        super(mesh);
+        this.updateSteps = Math.random()*15+3 * 1000;
+        this.curStep = this.updateSteps;
+    }
+
+    update(): void {
+        this.curStep++;
+        if(this.curStep >= this.updateSteps) {
+            const fX = (Math.random() - 0.5) * 2 * 140;
+            const fZ = (Math.random() - 0.5) * 2 * 140;
+            super.applyForce(new Vector3(fX,0,fZ).scale(1.6));
+            this.curStep=0;
+        }
+        super.update();
+    }
+}
+
 export class Flock implements SceneActor {
     playerFish: PlayerFishBehavior;
     flockingFish: FlockingFishBehavior[];
@@ -120,6 +147,7 @@ export class Flock implements SceneActor {
             }
 
             this.flockingFish.splice(index, 1);
+            element.dispose();
             if(this.onFishLeavesFlock !== undefined) {
                 this.onFishLeavesFlock(element);
             }
@@ -205,10 +233,12 @@ export class FlockingFishBehavior extends PhysicsBehavior {
         this.applyForce(separationForce);
 
         let cohesionForce = this.calculateCohesion(otherFish, this.flock.playerFish);
-        this.applyForce(cohesionForce);
+        if(!isNaN(cohesionForce.x) && !isNaN(cohesionForce.y))
+            this.applyForce(cohesionForce);
 
         let alignmentForce = this.calculateAlignment(otherFish, this.flock.playerFish);
-        this.applyForce(alignmentForce);
+        if(!isNaN(alignmentForce.x) && !isNaN(alignmentForce.x))
+            this.applyForce(alignmentForce);
 
         super.update();
     }
@@ -217,9 +247,9 @@ export class FlockingFishBehavior extends PhysicsBehavior {
         let separationForce = Vector3.Zero();
 
         let calculateSeparation = (pos: Vector3) => {
-            let delta = this.mesh.position.subtract(pos);
-
-            if(delta.length() < this.separationDistance) {
+            const delta = this.mesh.position.subtract(pos);
+            const length = delta.length()
+            if(length > 0 && delta.length() < this.separationDistance) {
                 let force = delta.normalize().scale(this.separationStrength / delta.length());
                 separationForce.addInPlace(force);
             }
