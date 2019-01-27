@@ -65,9 +65,6 @@ export class App {
 
         let playerFish = new PlayerFishBehavior(scene, ground, playerFishMesh);
 
-        let camera: FreeCamera = new FreeCamera("Camera", new Vector3(0,35,0), scene);
-        let followBehavior = new CameraFollowBehavior(camera, playerFishMesh, 35, 0.1);
-
         let flock = new Flock(playerFish);
         let sea = new Sea(scene, flock);
         this.sceneActors.push(sea);
@@ -79,6 +76,9 @@ export class App {
             autoplay: true,
             volume: 0.6
         });
+
+        let camera: FreeCamera = new FreeCamera("Camera", new Vector3(0,35,0), scene);
+        let followBehavior = new CameraFollowBehavior(camera, playerFish, flock, 35, 0.05);
     
         return scene;
     }
