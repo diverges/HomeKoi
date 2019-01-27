@@ -42,17 +42,19 @@ export class App {
 
     private async createScene(): Promise<Scene> {
         let scene: Scene = new Scene(this.engine);
-    
+
         let hemisphericLight: HemisphericLight = new HemisphericLight("light2", new BABYLON.Vector3(1, 1, 1), scene);
         hemisphericLight.intensity = 0.6;
         hemisphericLight.specular = Color3.Black();
         let directionalLight = new DirectionalLight("dir01", new BABYLON.Vector3(0, -0.5, -5.0), scene);
         directionalLight.position = new Vector3(0, 5, 5);
     
-        scene = await SceneLoader.AppendAsync('/assets/3d/long_fish/', '12993_Long_Fin_White_Cloud_v1_l3.obj', scene);
+        scene = await SceneLoader.AppendAsync('/assets/3d/fish/', 'fish.glb', scene);
         
-        var playerFishMesh: Mesh = (<Mesh>scene.meshes[0]);
-        playerFishMesh.position.y -= 5;
+        let playerFishMesh = (<Mesh>scene.meshes.filter(mesh => mesh.id == "fish")[0]);
+
+        playerFishMesh.parent = null;
+        playerFishMesh.rotate(Vector3.Right(), 90);
         playerFishMesh.name = "player_fish";
         
         let ground = MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
@@ -62,11 +64,10 @@ export class App {
         let playerFish = new PlayerFishBehavior(scene, ground, playerFishMesh);
 
         let camera: FreeCamera = new FreeCamera("Camera", new Vector3(0,35,0), scene);
-        camera.setTarget(playerFishMesh.position);
         camera.parent = playerFishMesh;
 
         let flock = new Flock(playerFish);
-        var sea = new Sea(scene, flock);
+        let sea = new Sea(scene, flock);
         this.sceneActors.push(sea);
         this.sceneActors.push(flock);
         sea.addToRenderList(playerFishMesh);
