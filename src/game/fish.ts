@@ -32,7 +32,9 @@ class PhysicsBehavior {
         let delta = this.velocity.scale(deltaTime);
         let newPosition = this.mesh.position.add(delta);
 
-        this.mesh.lookAt(newPosition, 0, Math.PI / 2, 0);
+        if(delta.length() > 0.001) {
+            this.mesh.lookAt(newPosition, 0, Math.PI / 2, 0);
+        }
 
         this.mesh.position = newPosition;
         this.mesh.position.y = 0;
