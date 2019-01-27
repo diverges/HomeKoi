@@ -24,7 +24,7 @@ class PhysicsBehavior {
     }
 
     updatePosition(deltaTime: number) {
-        this.mesh.rotate(Vector3.Up(), Math.atan2(this.velocity.x, this.velocity.z));
+        //this.mesh.rotate(Vector3.Up(), Math.atan2(this.velocity.x, this.velocity.z));
 
         this.velocity.addInPlace(this.acceleration.scale(deltaTime));
         this.mesh.position.addInPlace(this.velocity.scale(deltaTime));
