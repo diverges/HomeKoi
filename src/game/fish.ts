@@ -1,4 +1,4 @@
-import { Mesh, Scene, Vector3, Observer } from "babylonjs";
+import { Mesh, Scene, Vector3, Observer, Camera } from "babylonjs";
 import { SceneActor } from "./actor";
 
 const FLOCK_THRESHOLD = 75;

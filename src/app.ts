@@ -10,6 +10,7 @@ import 'babylonjs-loaders';
 import { Sea } from './game/sea';
 import { PlayerFishBehavior, Flock } from './game/fish';
 import { SceneActor } from './game/actor';
+import { CameraFollowBehavior } from './game/camera';
 
 export class App {
     public canvas;
@@ -65,7 +66,7 @@ export class App {
         let playerFish = new PlayerFishBehavior(scene, ground, playerFishMesh);
 
         let camera: FreeCamera = new FreeCamera("Camera", new Vector3(0,35,0), scene);
-        camera.parent = playerFishMesh;
+        let followBehavior = new CameraFollowBehavior(camera, playerFishMesh, 35, 0.1);
 
         let flock = new Flock(playerFish);
         let sea = new Sea(scene, flock);

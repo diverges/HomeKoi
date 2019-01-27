@@ -73,8 +73,6 @@ export class Sea implements SceneActor {
     public update(scene : Scene) : void {
         const fishMesh = scene.getMeshByName("player_fish");
 
-        scene.cameras[0].position.y = 45 + 25*Math.sqrt(this.playerFlock.flockingFish.length);
-
         // despawn far away fish
         this.wildFish.forEach((element, index) => {
             let wildFishMesh = element.mesh;
