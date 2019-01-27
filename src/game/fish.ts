@@ -1,5 +1,7 @@
 import { Mesh, Scene, Vector3, GroundGeometry } from "babylonjs";
+import { SceneActor } from "./actor";
 
+const FLOCK_THRESHOLD = 30;
 
 class PhysicsBehavior {
     mesh: Mesh;
@@ -99,13 +101,29 @@ export class PlayerFishBehavior extends PhysicsBehavior {
     }
 }
 
-export class Flock {
+export class Flock implements SceneActor {
     playerFish: PlayerFishBehavior;
     flockingFish: FlockingFishBehavior[];
+
+    public onFishLeavesFlock: (fish: FlockingFishBehavior) => void;
 
     constructor(playerFish: PlayerFishBehavior) {
         this.playerFish = playerFish;
         this.flockingFish = [];
+    }
+
+    update(scene: Scene): void {
+        this.flockingFish.forEach((element,index) => {
+            const distance = Vector3.Distance(this.playerFish.mesh.position, element.mesh.position);
+            if(distance < FLOCK_THRESHOLD) {
+                return;
+            }
+
+            this.flockingFish.splice(index, 1);
+            if(this.onFishLeavesFlock !== undefined) {
+                this.onFishLeavesFlock(element);
+            }
+        });
     }
 
     addFlockingFish(flockingFish: FlockingFishBehavior) {

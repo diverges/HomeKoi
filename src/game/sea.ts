@@ -8,12 +8,13 @@ import {
     AbstractMesh
 } from "babylonjs";
 import { StandardMaterial, WaterMaterial } from 'babylonjs-materials';
-import { PlayerFishBehavior } from "./fish";
+import { PlayerFishBehavior, Flock, FlockingFishBehavior } from "./fish";
 import { SceneActor } from './actor'; 
 
-const MAX_WILD_FISH  = 20;
+const MAX_WILD_FISH  = 30;
 const MAX_SPAWN_RADIUS = 200;
 const DESPAWN_RADIUS = 300;
+const FLOCK_JOIN_DISTANCE = 10;
 
 export class Sea implements SceneActor {
 
@@ -24,11 +25,16 @@ export class Sea implements SceneActor {
 
     private uid: number;
     private wildFish: AbstractMesh[];
+    private playerFlock: Flock;
 
-    constructor(scene: Scene)
+    constructor(scene: Scene, playerFlock: Flock)
     {
         this.uid = 0;
         this.wildFish = [];
+        this.playerFlock = playerFlock;
+        this.playerFlock.onFishLeavesFlock = (fish: FlockingFishBehavior) => {
+            this.wildFish.push(fish.mesh);
+        }
 
         this.skybox = Mesh.CreateBox("skyBox", 5000.0, scene);
         this.skyboxMaterial = new StandardMaterial("skyBox", scene);
@@ -55,7 +61,7 @@ export class Sea implements SceneActor {
 
         for(let i = 0; i < 10; ++i)
         {
-            this.spawnFish(20, 100, 10, scene.getMeshByName("player_fish"));
+            this.spawnFish(20, 100, scene.getMeshByName("player_fish"));
         }
     }
 
@@ -66,19 +72,42 @@ export class Sea implements SceneActor {
     public update(scene : Scene) : void {
         const fishMesh = scene.getMeshByName("player_fish");
 
+        scene.cameras[0].position.y = 35 + 25*Math.sqrt(this.playerFlock.flockingFish.length);
+
         // despawn far away fish
-        // this.wildFish.forEach(element => {
-        //     if(Vector3.Distance(element.position, fishMesh.position) > 100)
-        //     {
-        //         element.dispose();
-        //     }
-        // });
+        this.wildFish.forEach((element, index) => {
+            let distanceToPlayer = Vector3.Distance(element.position, fishMesh.position);
+            
+            if(distanceToPlayer > DESPAWN_RADIUS)
+            {
+                element.dispose();
+                this.wildFish.splice(index,1);
+            }
 
-        // spawn enw fish
+            if(distanceToPlayer < FLOCK_JOIN_DISTANCE)
+            {
+                this.joinFlock(element);
+                this.wildFish.splice(index,1);
+            }
+        });
 
+        // spawn new fish
+        if(this.wildFish.length < MAX_WILD_FISH)
+        {
+            for(let i = 0; i < MAX_WILD_FISH-this.wildFish.length; ++i)
+            {
+                this.spawnFish(100, 200, scene.getMeshByName("player_fish"));
+            }
+        }
     }
 
-    private spawnFish(minRadius: number, maxRadius: number, quantity: number, fishMesh: AbstractMesh): void {
+    private joinFlock(fish: AbstractMesh): FlockingFishBehavior {
+        let flockingFish = new FlockingFishBehavior(<Mesh>fish);
+        flockingFish.joinFlock(this.playerFlock);
+        return flockingFish;
+    }
+
+    private spawnFish(minRadius: number, maxRadius: number, fishMesh: AbstractMesh): void {
         var plusOrMinusX = Math.random() < 0.5 ? -1 : 1;
         var plusOrMinusZ = Math.random() < 0.5 ? -1 : 1;
 

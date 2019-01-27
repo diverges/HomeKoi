@@ -61,19 +61,15 @@ export class App {
 
         let playerFish = new PlayerFishBehavior(scene, ground, playerFishMesh);
 
-        let camera: FreeCamera = new FreeCamera("Camera", new Vector3(0,100,0), scene);
+        let camera: FreeCamera = new FreeCamera("Camera", new Vector3(0,35,0), scene);
         camera.setTarget(playerFishMesh.position);
         camera.parent = playerFishMesh;
 
-        var sea = new Sea(scene);
+        let flock = new Flock(playerFish);
+        var sea = new Sea(scene, flock);
         this.sceneActors.push(sea);
+        this.sceneActors.push(flock);
         sea.addToRenderList(playerFishMesh);
-    
-        // let flock = new Flock(playerFish);
-        // for(let i = 0; i < 10; i++) {
-        //     let flockingFish = this.createFlockingFish(flock, i);
-        //     sea.addToRenderList(flockingFish.mesh);
-        // }
 
         new Sound("background", "/assets/sound/background.wav", scene, null, {
             loop: true,
@@ -82,16 +78,6 @@ export class App {
         });
     
         return scene;
-    }
-
-    private createFlockingFish(flock: Flock, index: number): FlockingFishBehavior {
-        let npcFishMesh =  flock.playerFish.mesh.clone('fish_'+index);
-            npcFishMesh.position = new Vector3(Math.random(), 0, Math.random()).scale(5);
-    
-            let flockingFish = new FlockingFishBehavior(npcFishMesh);
-            flockingFish.joinFlock(flock);
-    
-            return flockingFish;
     }
 }
 export const gApp = new App();
