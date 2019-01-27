@@ -58,6 +58,8 @@ module.exports = {
         }]
     },
     plugins : [
-        new CopyWebpackPlugin([{ from: 'assets', to: 'assets' }
+        new CopyWebpackPlugin([
+            { from: 'assets', to: 'assets' },
+            { from: './*.html' }
     ])]
 };
