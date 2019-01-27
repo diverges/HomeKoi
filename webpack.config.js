@@ -1,10 +1,12 @@
 const path = require("path");
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: './src/app.ts',
     output: {
         filename: 'app.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: './assets/'
     },
     resolve: {
         extensions: [".ts", '.js', '.html']
@@ -54,5 +56,8 @@ module.exports = {
           include: path.resolve(__dirname, 'src', 'res', 'html'),
           exclude: /node_modules/,
         }]
-    }
+    },
+    plugins : [
+        new CopyWebpackPlugin([{ from: 'assets', to: 'assets' }
+    ])]
 };
