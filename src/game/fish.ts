@@ -91,6 +91,9 @@ export class PlayerFishBehavior extends PhysicsBehavior {
 
             this.velocity = delta;
         }
+        else {
+            this.velocity.scaleInPlace(0.95);
+        }
 
         super.update();
     }
