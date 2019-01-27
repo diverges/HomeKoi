@@ -4,11 +4,11 @@ import {
     Mesh,
     HemisphericLight, DirectionalLight,
     Vector3, Color3,
-    SceneLoader, Sound, MeshBuilder, FreeCamera, ArcFollowCamera
+    SceneLoader, Sound, MeshBuilder, FreeCamera
 } from "babylonjs";
 import 'babylonjs-loaders';
 import { Sea } from './game/sea';
-import { PlayerFishBehavior, FlockingFishBehavior, Flock } from './game/fish';
+import { PlayerFishBehavior, Flock } from './game/fish';
 import { SceneActor } from './game/actor';
 
 export class App {
@@ -26,6 +26,7 @@ export class App {
         this.isLoaded = false;
         this.createScene().then((scene: Scene): void => {
             this.scene = scene;
+            scene.debugLayer.show();
             this.isLoaded = true;
             this.scene.onBeforeRenderObservable.add((scene : Scene) => {
                 this.sceneActors.forEach(e => e.update(scene));

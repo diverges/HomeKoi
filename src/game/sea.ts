@@ -8,23 +8,24 @@ import {
     AbstractMesh
 } from "babylonjs";
 import { StandardMaterial, WaterMaterial } from 'babylonjs-materials';
-import { PlayerFishBehavior, Flock, FlockingFishBehavior } from "./fish";
+import { Flock, FlockingFishBehavior, WildFishBehavior } from "./fish";
 import { SceneActor } from './actor'; 
 
-const MAX_WILD_FISH  = 30;
-const MAX_SPAWN_RADIUS = 200;
+const INITIAL_FISH = 10;
+const MAX_WILD_FISH  = 40;
+const MIN_SPAWN_RADIUS = 50;
+const MAX_SPAWN_RADIUS = 150;
 const DESPAWN_RADIUS = 300;
 const FLOCK_JOIN_DISTANCE = 10;
 
 export class Sea implements SceneActor {
-
     private skybox: Mesh;
     private skyboxMaterial: StandardMaterial;
     private waterMesh : Mesh;
     private water: WaterMaterial;
 
     private uid: number;
-    private wildFish: AbstractMesh[];
+    private wildFish: WildFishBehavior[];
     private playerFlock: Flock;
 
     constructor(scene: Scene, playerFlock: Flock)
@@ -33,7 +34,7 @@ export class Sea implements SceneActor {
         this.wildFish = [];
         this.playerFlock = playerFlock;
         this.playerFlock.onFishLeavesFlock = (fish: FlockingFishBehavior) => {
-            this.wildFish.push(fish.mesh);
+            this.wildFish.push(new WildFishBehavior(fish.mesh));
         }
 
         this.skybox = Mesh.CreateBox("skyBox", 5000.0, scene);
@@ -59,7 +60,7 @@ export class Sea implements SceneActor {
         this.water.addToRenderList(this.skybox);
         this.waterMesh.material = this.water;
 
-        for(let i = 0; i < 10; ++i)
+        for(let i = 0; i < INITIAL_FISH; ++i)
         {
             this.spawnFish(20, 100, scene.getMeshByName("player_fish"));
         }
@@ -72,21 +73,24 @@ export class Sea implements SceneActor {
     public update(scene : Scene) : void {
         const fishMesh = scene.getMeshByName("player_fish");
 
-        scene.cameras[0].position.y = 35 + 25*Math.sqrt(this.playerFlock.flockingFish.length);
+        scene.cameras[0].position.y = 45 + 25*Math.sqrt(this.playerFlock.flockingFish.length);
 
         // despawn far away fish
         this.wildFish.forEach((element, index) => {
-            let distanceToPlayer = Vector3.Distance(element.position, fishMesh.position);
+            let wildFishMesh = element.mesh;
+            let distanceToPlayer = Vector3.Distance(wildFishMesh.position, fishMesh.position);
             
             if(distanceToPlayer > DESPAWN_RADIUS)
             {
+                wildFishMesh.dispose();
                 element.dispose();
                 this.wildFish.splice(index,1);
             }
 
             if(distanceToPlayer < FLOCK_JOIN_DISTANCE)
             {
-                this.joinFlock(element);
+                this.joinFlock(element.mesh);
+                element.dispose();
                 this.wildFish.splice(index,1);
             }
         });
@@ -96,7 +100,10 @@ export class Sea implements SceneActor {
         {
             for(let i = 0; i < MAX_WILD_FISH-this.wildFish.length; ++i)
             {
-                this.spawnFish(100, 200, scene.getMeshByName("player_fish"));
+                this.spawnFish(
+                    MIN_SPAWN_RADIUS,
+                    MAX_SPAWN_RADIUS,
+                    scene.getMeshByName("player_fish"));
             }
         }
     }
@@ -119,7 +126,7 @@ export class Sea implements SceneActor {
         const npcFishMesh = fishMesh.clone('fish_'+this.uid, null);
         npcFishMesh.position = new Vector3(rX, 0, rZ);
         this.water.addToRenderList(npcFishMesh);
-        this.wildFish.push(npcFishMesh);
+        this.wildFish.push(new WildFishBehavior(<Mesh>npcFishMesh));
         this.uid++;
     }
 
