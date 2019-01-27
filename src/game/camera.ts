@@ -22,7 +22,7 @@ export class CameraFollowBehavior {
         this.acceleration = Vector3.Zero();
 
         this.camera.position = this.player.mesh.position.add(Vector3.Up().scale(this.calculateTargetDistance()));
-        this.camera.setTarget(this.player.mesh.position);
+        this.camera.setTarget(Vector3.Zero());
 
         this.player.mesh.onBeforeRenderObservable.add(this.update.bind(this));
     }

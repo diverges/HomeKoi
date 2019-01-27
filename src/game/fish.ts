@@ -1,4 +1,4 @@
-import { Mesh, Scene, Vector3, Observer, Camera } from "babylonjs";
+import { Mesh, Scene, Vector3, Observer, Camera, Space } from "babylonjs";
 import { SceneActor } from "./actor";
 
 const FLOCK_THRESHOLD = 75;
@@ -27,10 +27,14 @@ class PhysicsBehavior {
     }
 
     updatePosition(deltaTime: number) {
-        //this.mesh.rotate(Vector3.Up(), Math.atan2(this.velocity.x, this.velocity.z));
-
         this.velocity.addInPlace(this.acceleration.scale(deltaTime));
-        this.mesh.position.addInPlace(this.velocity.scale(deltaTime));
+
+        let delta = this.velocity.scale(deltaTime);
+        let newPosition = this.mesh.position.add(delta);
+
+        this.mesh.lookAt(newPosition, 0, Math.PI / 2, 0);
+
+        this.mesh.position = newPosition;
         this.mesh.position.y = 0;
 
         this.acceleration = Vector3.Zero();

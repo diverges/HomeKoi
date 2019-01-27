@@ -12,6 +12,8 @@ import { PlayerFishBehavior, Flock } from './game/fish';
 import { SceneActor } from './game/actor';
 import { CameraFollowBehavior } from './game/camera';
 
+export const WORLD_SIZE = 100000000;
+
 export class App {
     public canvas;
     public engine: Engine;
@@ -59,9 +61,8 @@ export class App {
         playerFishMesh.rotate(Vector3.Right(), 90);
         playerFishMesh.name = "player_fish";
         
-        let ground = MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
+        let ground = MeshBuilder.CreateGround("ground", { width: WORLD_SIZE, height: WORLD_SIZE }, scene);
         ground.position.y -= 5;
-        ground.parent = playerFishMesh;
 
         let playerFish = new PlayerFishBehavior(scene, ground, playerFishMesh);
 

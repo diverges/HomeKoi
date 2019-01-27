@@ -10,6 +10,7 @@ import {
 import { StandardMaterial, WaterMaterial } from 'babylonjs-materials';
 import { Flock, FlockingFishBehavior, WildFishBehavior } from "./fish";
 import { SceneActor } from './actor'; 
+import { WORLD_SIZE } from "../app";
 
 const INITIAL_FISH = 10;
 const MAX_WILD_FISH  = 40;
@@ -37,7 +38,7 @@ export class Sea implements SceneActor {
             this.wildFish.push(new WildFishBehavior(fish.mesh));
         }
 
-        this.skybox = Mesh.CreateBox("skyBox", 5000.0, scene);
+        this.skybox = Mesh.CreateBox("skyBox", 5000, scene);
         this.skyboxMaterial = new StandardMaterial("skyBox", scene);
         this.skyboxMaterial.backFaceCulling = false;
         this.skyboxMaterial.reflectionTexture = new CubeTexture("assets/textures/skybox/", scene);
@@ -47,7 +48,7 @@ export class Sea implements SceneActor {
         this.skyboxMaterial.disableLighting = true;
         this.skybox.material = this.skyboxMaterial;
     
-        this.waterMesh = Mesh.CreateGround("waterMesh", 524, 524, 16, scene);
+        this.waterMesh = Mesh.CreateGround("waterMesh", WORLD_SIZE, WORLD_SIZE, 16, scene);
         this.water = new WaterMaterial("water", scene);
         this.water.backFaceCulling = true;
         this.water.bumpTexture = new Texture("assets/textures/waterbump.png", scene);
