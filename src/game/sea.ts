@@ -5,7 +5,8 @@ import {
     Texture,
     Vector2, Vector3,
     CubeTexture,
-    AbstractMesh
+    AbstractMesh,
+    Sound
 } from "babylonjs";
 import { StandardMaterial, WaterMaterial } from 'babylonjs-materials';
 import { Flock, FlockingFishBehavior, WildFishBehavior } from "./fish";
@@ -27,6 +28,7 @@ export class Sea implements SceneActor {
     private uid: number;
     private wildFish: WildFishBehavior[];
     private playerFlock: Flock;
+    private bubblesSound: Sound;
 
     constructor(scene: Scene, playerFlock: Flock)
     {
@@ -36,6 +38,7 @@ export class Sea implements SceneActor {
         this.playerFlock.onFishLeavesFlock = (fish: FlockingFishBehavior) => {
             this.wildFish.push(new WildFishBehavior(fish.mesh));
         }
+        this.bubblesSound = new Sound('bubbles', '/assets/sound/bubbles_f4ngy.wav', scene);
 
         this.skybox = Mesh.CreateBox("skyBox", 5000.0, scene);
         this.skyboxMaterial = new StandardMaterial("skyBox", scene);
@@ -73,7 +76,9 @@ export class Sea implements SceneActor {
     public update(scene : Scene) : void {
         const fishMesh = scene.getMeshByName("player_fish");
 
-        scene.cameras[0].position.y = 45 + 25*Math.sqrt(this.playerFlock.flockingFish.length);
+        //scene.cameras[0].position.y = 45 + 25*Math.sqrt(this.playerFlock.flockingFish.length);
+        this.waterMesh.position = new Vector3(fishMesh.position.x, 0, fishMesh.position.z);
+        this.skybox.position = new Vector3(fishMesh.position.x, 0, fishMesh.position.z);
 
         // despawn far away fish
         this.wildFish.forEach((element, index) => {
@@ -89,6 +94,10 @@ export class Sea implements SceneActor {
 
             if(distanceToPlayer < FLOCK_JOIN_DISTANCE)
             {
+                if(!this.bubblesSound.isPlaying) {
+                    this.bubblesSound.play();
+                }
+                
                 this.joinFlock(element.mesh);
                 element.dispose();
                 this.wildFish.splice(index,1);
