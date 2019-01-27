@@ -32,7 +32,7 @@ export class Sea {
         this.water.bumpTexture = new Texture("assets/textures/waterbump.png", scene);
         this.water.windForce = -5;
         this.water.waveHeight = 0.2;
-        this.water.bumpHeight = 0.04;
+        this.water.bumpHeight = 0.02;
         this.water.windDirection = new Vector2(1, 1);
         this.water.waterColor = new Color3(0, 0, 221 / 255);
         this.water.colorBlendFactor = 0.0;
