@@ -85,3 +85,6 @@ export class App {
     }
 }
 export const gApp = new App();
+window.addEventListener('resize', function(){
+	gApp.engine.resize();
+});

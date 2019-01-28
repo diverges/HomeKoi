@@ -13,8 +13,8 @@ import { Flock, FlockingFishBehavior, WildFishBehavior } from "./fish";
 import { SceneActor } from './actor'; 
 import { WORLD_SIZE } from "../app";
 
-const INITIAL_FISH = 10;
-const MAX_WILD_FISH  = 40;
+const INITIAL_FISH = 15;
+const MAX_WILD_FISH  = 50;
 const MIN_SPAWN_RADIUS = 50;
 const MAX_SPAWN_RADIUS = 150;
 const DESPAWN_RADIUS = 300;
