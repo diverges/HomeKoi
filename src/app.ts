@@ -79,7 +79,7 @@ export class App {
         });
 
         let camera: FreeCamera = new FreeCamera("Camera", new Vector3(0,35,0), scene);
-        let followBehavior = new CameraFollowBehavior(camera, playerFish, flock, 35, 0.05);
+        let followBehavior = new CameraFollowBehavior(camera, playerFish, flock, 35, 2);
     
         return scene;
     }

@@ -26,7 +26,9 @@ class PhysicsBehavior {
         this.acceleration = this.acceleration.add(force.scale(1.0 / this.mass));
     }
 
-    updatePosition(deltaTime: number) {
+    updatePosition() {
+        let deltaTime = this.mesh.getScene().getAnimationRatio() * 0.01;
+
         this.velocity.addInPlace(this.acceleration.scale(deltaTime));
 
         let delta = this.velocity.scale(deltaTime);
@@ -43,8 +45,7 @@ class PhysicsBehavior {
     }
 
     update() {
-        let deltaTime = 0.01;
-        this.updatePosition(deltaTime);
+        this.updatePosition();
     }
 
     dispose() {

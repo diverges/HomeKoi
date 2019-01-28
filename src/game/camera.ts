@@ -28,7 +28,8 @@ export class CameraFollowBehavior {
     }
 
     updatePosition() {
-        this.camera.position.addInPlace(this.velocity);
+        let deltaTime = this.camera.getScene().getAnimationRatio() * 0.01;
+        this.camera.position.addInPlace(this.velocity.scale(deltaTime));
 
         this.acceleration = Vector3.Zero();
     }
